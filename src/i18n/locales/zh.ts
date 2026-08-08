@@ -287,6 +287,14 @@ export const zh = {
       description: '是否将粘贴的图片转换为 JPEG。仅当 PNG 图像内容直接从剪贴板粘贴时适用。通常用于粘贴屏幕截图。',
       name: '是否将粘贴的图片转换为 JPEG'
     },
+    shouldCreateNoMediaFile: {
+      description: {
+        part1: '如果启用，将在附件文件夹中创建',
+        part2: '文件，以防止媒体浏览器（例如 Android 图库）扫描附件。',
+        part3: '仅适用于启用此设置后创建的文件夹。'
+      },
+      name: '是否创建 .nomedia 文件'
+    },
     shouldDeleteOrphanAttachments: {
       description: '如果启用，当笔记被删除时，其孤立的附件也会被删除。',
       name: '是否删除孤立附件'

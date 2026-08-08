@@ -386,6 +386,14 @@ export const defaultTranslations = {
       description: 'Whether to convert pasted images to JPEG. Applies only when the PNG image content is pasted from the clipboard directly. Typically, for pasting screenshots.',
       name: 'Should convert pasted images to JPEG'
     },
+    shouldCreateNoMediaFile: {
+      description: {
+        part1: 'If enabled, a',
+        part2: 'file is created in the attachment folder to prevent media browsers (e.g. Android gallery) from scanning the attachments.',
+        part3: 'Only applies to folders created after this setting is enabled.'
+      },
+      name: 'Should create .nomedia file'
+    },
     shouldDeleteOrphanAttachments: {
       description: 'If enabled, when the note is deleted, its orphan attachments are deleted as well.',
       name: 'Should delete orphan attachments'

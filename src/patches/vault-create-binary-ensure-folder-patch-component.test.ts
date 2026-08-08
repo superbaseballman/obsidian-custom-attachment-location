@@ -1,5 +1,6 @@
 import type { Vault as VaultOriginal } from 'obsidian';
 
+import { castTo } from 'obsidian-dev-utils/object-utils';
 import { App } from 'obsidian-test-mocks/obsidian';
 import {
   beforeEach,
@@ -8,6 +9,8 @@ import {
   it,
   vi
 } from 'vitest';
+
+import type { PluginSettingsComponent } from '../plugin-settings-component.ts';
 
 import { VaultCreateBinaryEnsureFolderPatchComponent } from './vault-create-binary-ensure-folder-patch-component.ts';
 
@@ -20,9 +23,13 @@ describe('VaultCreateBinaryEnsureFolderPatchComponent', () => {
     vault = app.vault.asOriginalType2__();
   });
 
-  function createComponent(): VaultCreateBinaryEnsureFolderPatchComponent {
+  function createComponent(shouldCreateNoMediaFile = false): VaultCreateBinaryEnsureFolderPatchComponent {
+    const pluginSettingsComponent = castTo<PluginSettingsComponent>({
+      settings: { shouldCreateNoMediaFile }
+    });
     return new VaultCreateBinaryEnsureFolderPatchComponent({
       app: app.asOriginalType__(),
+      pluginSettingsComponent,
       vault
     });
   }
@@ -75,5 +82,42 @@ describe('VaultCreateBinaryEnsureFolderPatchComponent', () => {
 
     expect(createFolderSpy).not.toHaveBeenCalled();
     expect(vault.getAbstractFileByPath('root.bin')).not.toBeNull();
+  });
+
+  it('should create a .nomedia file in the new folder when the setting is enabled', async () => {
+    const component = createComponent(true);
+    component.load();
+
+    expect(await vault.exists('deep/nested')).toBe(false);
+
+    await vault.createBinary('deep/nested/file.bin', new ArrayBuffer(4));
+
+    expect(await vault.exists('deep/nested')).toBe(true);
+    expect(await vault.exists('deep/nested/.nomedia')).toBe(true);
+    expect(vault.getAbstractFileByPath('deep/nested/file.bin')).not.toBeNull();
+  });
+
+  it('should not create a .nomedia file when the setting is disabled', async () => {
+    const component = createComponent(false);
+    component.load();
+
+    await vault.createBinary('deep/nested/file.bin', new ArrayBuffer(4));
+
+    expect(await vault.exists('deep/nested/.nomedia')).toBe(false);
+  });
+
+  it('should not create a .nomedia file when the parent folder already exists', async () => {
+    const component = createComponent(true);
+    component.load();
+
+    await vault.createFolder('existing');
+    await vault.create('existing/.nomedia', '');
+
+    const createSpy = vi.spyOn(vault, 'create');
+
+    await vault.createBinary('existing/file.bin', new ArrayBuffer(4));
+
+    expect(createSpy).not.toHaveBeenCalled();
+    expect(vault.getAbstractFileByPath('existing/file.bin')).not.toBeNull();
   });
 });

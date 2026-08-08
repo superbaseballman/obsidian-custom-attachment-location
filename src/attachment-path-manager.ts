@@ -249,6 +249,7 @@ export class AttachmentPathManager {
       const folderPath = parentFolderPath(attachmentPath);
       if (!await this.app.vault.exists(folderPath)) {
         await createFolderSafe(this.app, folderPath);
+        await this.ensureNoMediaFile(folderPath);
         if (this.pluginSettingsComponent.settings.emptyFolderBehavior === EmptyFolderBehavior.Keep) {
           /*
            * Materialize the Keep placeholder idempotently. On a multi-device sync
@@ -315,6 +316,7 @@ export class AttachmentPathManager {
     const folderPath = parentFolderPath(attachmentPath);
     if (!await this.app.vault.exists(folderPath)) {
       await createFolderSafe(this.app, folderPath);
+      await this.ensureNoMediaFile(folderPath);
     }
 
     return attachmentPath;
@@ -430,6 +432,16 @@ export class AttachmentPathManager {
     cleanPart = cleanPart.replace(/[\s.]+$/, '');
     cleanPart = this.pluginSettingsComponent.replaceSpecialCharacters(cleanPart);
     return cleanPart;
+  }
+
+  private async ensureNoMediaFile(folderPath: string): Promise<void> {
+    if (!this.pluginSettingsComponent.settings.shouldCreateNoMediaFile) {
+      return;
+    }
+    const noMediaFilePath = join(folderPath, '.nomedia');
+    if (!await this.app.vault.exists(noMediaFilePath)) {
+      await this.app.vault.create(noMediaFilePath, '');
+    }
   }
 
   private async getAttachmentFolderPath(substitutions: Substitutions): Promise<string> {

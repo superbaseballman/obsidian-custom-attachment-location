@@ -134,6 +134,7 @@ function createManager(): TestContext {
     generatedAttachmentFileName: 'generated',
     isPathIgnored,
     renamedAttachmentFileName: '',
+    shouldCreateNoMediaFile: false,
     shouldRenameCollectedAttachments: false,
     specialCharacters: '',
     specialCharactersReplacement: '-'
@@ -812,6 +813,84 @@ describe('AttachmentPathManager', () => {
       });
       expect(mockCreateFolderSafe).toHaveBeenCalledWith(expect.anything(), 'assets');
       expect(context.create).not.toHaveBeenCalled();
+    });
+
+    it('should create a .nomedia file when the setting is enabled', async () => {
+      context.settings.attachmentFolderPath = 'assets';
+      context.settings.shouldCreateNoMediaFile = true;
+      const noteFile = createTFile({ path: 'note.md' });
+      mockGetFileOrNull.mockReturnValueOnce(noteFile).mockReturnValue(null);
+      mockIsNote.mockReturnValue(true);
+      context.exists.mockResolvedValue(false);
+      await context.manager.getAvailablePathForAttachments({
+        attachmentFileBaseName: `${IMPORT_FILES_PREFIX}img`,
+        attachmentFileExtension: 'png',
+        context: AttachmentPathContext.Unknown,
+        notePathOrFile: 'note.md',
+        oldAttachmentPathOrFile: 'old.png',
+        readAttachmentFileContent: null,
+        shouldSkipDuplicateCheck: true,
+        shouldSkipMissingAttachmentFolderCreation: false
+      });
+      expect(mockCreateFolderSafe).toHaveBeenCalledWith(expect.anything(), 'assets');
+      expect(context.create).toHaveBeenCalledWith('assets/.nomedia', '');
+    });
+
+    it('should not re-create the .nomedia file when it already exists', async () => {
+      context.settings.attachmentFolderPath = 'assets';
+      context.settings.shouldCreateNoMediaFile = true;
+      const noteFile = createTFile({ path: 'note.md' });
+      mockGetFileOrNull.mockReturnValueOnce(noteFile).mockReturnValue(null);
+      mockIsNote.mockReturnValue(true);
+      context.exists.mockImplementation((path) => Promise.resolve(path === 'assets/.nomedia'));
+      await context.manager.getAvailablePathForAttachments({
+        attachmentFileBaseName: `${IMPORT_FILES_PREFIX}img`,
+        attachmentFileExtension: 'png',
+        context: AttachmentPathContext.Unknown,
+        notePathOrFile: 'note.md',
+        oldAttachmentPathOrFile: 'old.png',
+        readAttachmentFileContent: null,
+        shouldSkipDuplicateCheck: true,
+        shouldSkipMissingAttachmentFolderCreation: false
+      });
+      expect(mockCreateFolderSafe).toHaveBeenCalledWith(expect.anything(), 'assets');
+      expect(context.create).not.toHaveBeenCalled();
+    });
+
+    it('should not create a .nomedia file when the setting is disabled', async () => {
+      context.settings.attachmentFolderPath = 'assets';
+      const noteFile = createTFile({ path: 'note.md' });
+      mockGetFileOrNull.mockReturnValueOnce(noteFile).mockReturnValue(null);
+      mockIsNote.mockReturnValue(true);
+      context.exists.mockResolvedValue(false);
+      await context.manager.getAvailablePathForAttachments({
+        attachmentFileBaseName: `${IMPORT_FILES_PREFIX}img`,
+        attachmentFileExtension: 'png',
+        context: AttachmentPathContext.Unknown,
+        notePathOrFile: 'note.md',
+        oldAttachmentPathOrFile: 'old.png',
+        readAttachmentFileContent: null,
+        shouldSkipDuplicateCheck: true,
+        shouldSkipMissingAttachmentFolderCreation: false
+      });
+      expect(mockCreateFolderSafe).toHaveBeenCalledWith(expect.anything(), 'assets');
+      expect(context.create).not.toHaveBeenCalled();
+    });
+
+    it('should create a .nomedia file for a downloaded image folder when the setting is enabled', async () => {
+      context.settings.attachmentFolderPath = 'assets';
+      context.settings.shouldCreateNoMediaFile = true;
+      context.exists.mockResolvedValue(false);
+      const result = await context.manager.getDownloadedImagePath({
+        actionContext: ActionContext.CollectAttachments,
+        downloadedContent: new ArrayBuffer(4),
+        fileExtension: 'png',
+        fileName: 'my-image',
+        noteFilePath: 'notes/note.md'
+      });
+      expect(result).toBe('assets/generated.png');
+      expect(mockCreateFolderSafe).toHaveBeenCalledWith(expect.anything(), 'assets');
+      expect(context.create).toHaveBeenCalledWith('assets/.nomedia', '');
     });
 
     it('should not create the folder when it already exists', async () => {

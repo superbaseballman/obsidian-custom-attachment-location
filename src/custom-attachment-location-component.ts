@@ -109,6 +109,7 @@ export class CustomAttachmentLocationComponent extends LayoutReadyComponent {
     this.addChild(
       new VaultCreateBinaryEnsureFolderPatchComponent({
         app: this.app,
+        pluginSettingsComponent: this.pluginSettingsComponent,
         vault: this.app.vault
       })
     );

@@ -112,6 +112,18 @@ export class PluginSettingsTab extends PluginSettingsTabBase<PluginSettings> {
             }
           }),
           this.settingEx({
+            desc: t(($) => $.pluginSettingsTab.shouldCreateNoMediaFile.description),
+            name: t(($) => $.pluginSettingsTab.shouldCreateNoMediaFile.name),
+            render: (setting) => {
+              setting.addToggle((toggle) => {
+                this.bind({
+                  propertyName: 'shouldCreateNoMediaFile',
+                  valueComponent: toggle
+                });
+              });
+            }
+          }),
+          this.settingEx({
             desc: createFragment((f) => {
               f.appendText(t(($) => $.pluginSettingsTab.generatedAttachmentFileName.description.part1));
               f.appendText(' ');

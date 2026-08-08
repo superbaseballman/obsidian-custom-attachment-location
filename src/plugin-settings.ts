@@ -72,6 +72,7 @@ export class PluginSettings {
   public networkImageDownloadTimeoutInSeconds = 30;
 
   public renamedAttachmentFileName = '';
+  public shouldCreateNoMediaFile = false;
   public shouldDeleteOrphanAttachments = false;
   public shouldHandleRenames = true;
   public shouldRenameAttachmentFiles = false;

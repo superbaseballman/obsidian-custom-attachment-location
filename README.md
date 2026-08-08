@@ -127,6 +127,10 @@ If enabled, empty attachment folders will be preserved, useful for source contro
 
 If enabled, when the note is deleted, its orphan attachments are deleted as well.
 
+### Should create `.nomedia` file
+
+If enabled, a `.nomedia` file is created in the attachment folder when it is created. This prevents media browsers (e.g. the Android gallery) from scanning the attachments inside that folder. Only applies to folders created after this setting is enabled; existing folders are not affected.
+
 ### Skip collecting attachments referenced by a raw path
 
 The `Collect attachments` commands only see attachment references that Obsidian indexes (traditional `[[wikilink]]` / `![](markdown)` embeds). Attachments referenced through other plugins' non-standard syntaxes (a raw `<img src="...">`, a custom code block, an image-slider list, etc.) are invisible, so such an attachment could be relocated as if it were unused and later lost.

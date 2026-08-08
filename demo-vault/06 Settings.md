@@ -9,6 +9,7 @@ Open **Settings -> Community plugins -> Custom Attachment Location** to configur
 - `attachmentFolderPath` - the folder each new attachment is saved into (a pattern). Start it with `./` for a path relative to the note; otherwise it is relative to the vault root.
 - `includePaths` - if non-empty, the plugin only applies within these paths.
 - `excludePaths` - paths where the plugin does nothing (Obsidian's default behavior is used instead).
+- `shouldCreateNoMediaFile` - when a new attachment folder is created, also create a `.nomedia` file inside it so media browsers (e.g. the Android gallery) skip scanning those attachments. Only affects folders created after enabling it.
 
 ## Attachment file naming
 
